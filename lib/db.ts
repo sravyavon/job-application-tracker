@@ -35,8 +35,17 @@ export function isArchived(app: Application, now = Date.now()): boolean {
   return now - app.appliedAt > ARCHIVE_AFTER_DAYS * DAY
 }
 
+function startOfLocalDay(ts: number): number {
+  const d = new Date(ts)
+  d.setHours(0, 0, 0, 0)
+  return d.getTime()
+}
+
 export function daysSince(ts: number, now = Date.now()): number {
-  return Math.floor((now - ts) / DAY)
+  return Math.max(
+    0,
+    Math.floor((startOfLocalDay(now) - startOfLocalDay(ts)) / DAY),
+  )
 }
 
 const db = new Dexie('herontrack') as Dexie & {
