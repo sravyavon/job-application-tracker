@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { CompanyAvatar } from './visuals'
 import { StatusActions } from './status-actions'
+import { InterviewDetails } from './interview-details'
 import {
   daysSince,
   deleteApplication,
@@ -184,6 +185,7 @@ export function ApplicationDetail({
         <div className="mt-6">
           <p className="mb-2 text-sm font-medium text-foreground">Status</p>
           <StatusActions id={app.id} current={app.status} />
+          <InterviewDetails app={app} />
         </div>
 
         <div className="mt-6">

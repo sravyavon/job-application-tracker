@@ -3,13 +3,14 @@
 import { Archive, ArchiveRestore, ExternalLink } from 'lucide-react'
 import { CompanyAvatar } from './visuals'
 import { StatusActions } from './status-actions'
-import { daysSince, updateApplication, type Application } from '@/lib/db'
+import { daysSince, interviewSummary, updateApplication, type Application } from '@/lib/db'
 
 export function ListView({ apps }: { apps: Application[] }) {
   return (
     <ul className="flex flex-col gap-2">
       {apps.map((app) => {
         const age = daysSince(app.appliedAt)
+        const interview = interviewSummary(app)
         return (
           <li
             key={app.id}
@@ -39,6 +40,11 @@ export function ListView({ apps }: { apps: Application[] }) {
                 {' · '}
                 {age === 0 ? 'applied today' : `${age} days ago`}
               </p>
+              {interview && (
+                <p className="truncate text-xs font-medium text-interview-foreground">
+                  {interview}
+                </p>
+              )}
             </div>
 
             <StatusActions

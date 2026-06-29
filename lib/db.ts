@@ -8,6 +8,11 @@ export type ApplicationStatus =
   | 'offer'
   | 'rejected'
 
+export type InterviewStage =
+  | 'awaiting_schedule'
+  | 'scheduled'
+  | 'completed'
+
 export interface Application {
   id: string
   url: string
@@ -18,6 +23,11 @@ export interface Application {
   portalLabel: string
   status: ApplicationStatus
   notes?: string
+  interviewStage?: InterviewStage
+  /** When the interview is scheduled (ms epoch). */
+  interviewAt?: number
+  /** Optional follow-up date while awaiting schedule (ms epoch). */
+  interviewFollowUpAt?: number
   /** When the user applied (ms epoch). Drives the 90-day archive rule. */
   appliedAt: number
   createdAt: number
@@ -77,6 +87,68 @@ export const STATUS_META: Record<
   rejected: { label: 'Rejected', description: 'Not moving forward' },
 }
 
+export const INTERVIEW_STAGE_ORDER: InterviewStage[] = [
+  'awaiting_schedule',
+  'scheduled',
+  'completed',
+]
+
+export const INTERVIEW_STAGE_META: Record<
+  InterviewStage,
+  { label: string; description: string }
+> = {
+  awaiting_schedule: {
+    label: 'Awaiting schedule',
+    description: 'Waiting for the interview invite or calendar link',
+  },
+  scheduled: {
+    label: 'Scheduled',
+    description: 'Date and time are set',
+  },
+  completed: {
+    label: 'Completed',
+    description: 'Interview done — awaiting decision',
+  },
+}
+
+export function formatInterviewAt(ts: number): string {
+  return new Date(ts).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+export function formatInterviewDate(ts: number): string {
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+/** Short label for list/sidebar when status is interview. */
+export function interviewSummary(app: Application): string | null {
+  if (app.status !== 'interview') return null
+
+  const stage = app.interviewStage ?? 'awaiting_schedule'
+
+  switch (stage) {
+    case 'awaiting_schedule':
+      return app.interviewFollowUpAt
+        ? `Follow up ${formatInterviewDate(app.interviewFollowUpAt)}`
+        : INTERVIEW_STAGE_META.awaiting_schedule.label
+    case 'scheduled':
+      return app.interviewAt
+        ? `Scheduled · ${formatInterviewAt(app.interviewAt)}`
+        : INTERVIEW_STAGE_META.scheduled.label
+    case 'completed':
+      return INTERVIEW_STAGE_META.completed.label
+  }
+}
+
 function uid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
     return crypto.randomUUID()
@@ -114,7 +186,20 @@ export async function setStatus(
   id: string,
   status: ApplicationStatus,
 ): Promise<void> {
-  await updateApplication(id, { status })
+  const existing = await db.applications.get(id)
+  const changes: Partial<Omit<Application, 'id' | 'createdAt'>> = { status }
+
+  if (status === 'interview' && existing?.status !== 'interview') {
+    changes.interviewStage = 'awaiting_schedule'
+  }
+
+  if (status !== 'interview') {
+    changes.interviewStage = undefined
+    changes.interviewAt = undefined
+    changes.interviewFollowUpAt = undefined
+  }
+
+  await updateApplication(id, changes)
 }
 
 export async function deleteApplication(id: string): Promise<void> {

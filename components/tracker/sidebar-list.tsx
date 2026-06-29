@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 import { CompanyAvatar, StatusBadge } from './visuals'
-import { daysSince, type Application } from '@/lib/db'
+import { daysSince, interviewSummary, type Application } from '@/lib/db'
 
 export function SidebarList({
   apps,
@@ -18,6 +18,7 @@ export function SidebarList({
       {apps.map((app) => {
         const active = app.id === selectedId
         const age = daysSince(app.appliedAt)
+        const interview = interviewSummary(app)
         return (
           <li key={app.id}>
             <button
@@ -41,6 +42,11 @@ export function SidebarList({
                   {' · '}
                   {age === 0 ? 'today' : `${age}d`}
                 </p>
+                {interview && (
+                  <p className="truncate text-xs font-medium text-interview-foreground">
+                    {interview}
+                  </p>
+                )}
               </div>
               <StatusBadge status={app.status} className="hidden sm:inline-flex" />
             </button>
