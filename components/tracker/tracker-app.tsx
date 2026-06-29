@@ -14,6 +14,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { SignOutButton } from '@/components/auth/sign-out-button'
 import { AddApplication } from './add-application'
 import { SidebarList } from './sidebar-list'
 import { ListView } from './list-view'
@@ -160,6 +161,8 @@ export function TrackerApp() {
           </div>
 
           <ThemeToggle />
+
+          <SignOutButton />
 
           <Button size="lg" onClick={() => setAddOpen(true)}>
             <Plus className="size-4" />
