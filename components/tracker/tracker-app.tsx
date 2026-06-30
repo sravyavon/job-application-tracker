@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { SignOutButton } from '@/components/auth/sign-out-button'
-import { ImportApplicationsButton } from './import-applications'
 import { AddApplication } from './add-application'
 import { SidebarList } from './sidebar-list'
 import { ListView } from './list-view'
@@ -106,7 +105,11 @@ export function TrackerApp() {
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
         <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2" aria-label="Herontrack home">
+          <Link
+            href="/"
+            className="flex shrink-0 items-center gap-2"
+            aria-label="Herontrack home"
+          >
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Feather className="size-4" />
             </span>
@@ -115,13 +118,13 @@ export function TrackerApp() {
             </span>
           </Link>
 
-          <div className="relative ml-auto hidden items-center sm:flex">
+          <div className="relative ml-auto hidden flex-1 items-center sm:flex sm:max-w-sm lg:ml-12 lg:max-w-md">
             <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
             <Input
               placeholder="Search roles…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="h-9 w-44 pl-9 lg:w-56"
+              className="h-9 w-full pl-9"
             />
           </div>
 
@@ -159,8 +162,6 @@ export function TrackerApp() {
           <ThemeToggle />
 
           <SignOutButton />
-
-          <ImportApplicationsButton />
 
           <Button size="lg" onClick={() => setAddOpen(true)}>
             <Plus className="size-4" />

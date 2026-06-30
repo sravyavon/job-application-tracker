@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { LogOut, Mail, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, Mail, UserRound } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ImportApplicationsButton } from '@/components/tracker/import-applications'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 
@@ -71,11 +72,24 @@ export function SignOutButton() {
         aria-haspopup="menu"
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex size-9 items-center justify-center rounded-full border border-border bg-card text-sm font-semibold text-foreground shadow-sm transition-colors outline-none',
+          'group flex h-9 items-center gap-1 rounded-full border border-border bg-card py-1 pl-2 pr-1.5 text-sm font-semibold text-foreground shadow-sm transition-colors outline-none',
           'hover:bg-muted focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50',
         )}
       >
-        {initial ?? <UserRound className="size-4" />}
+        <span className="relative flex size-6 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+          <UserRound className="size-3.5" />
+          {initial && (
+            <span className="absolute -bottom-1 -right-1 flex size-4 items-center justify-center rounded-full border border-card bg-primary text-[0.6rem] font-semibold leading-none text-primary-foreground">
+              {initial}
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={cn(
+            'size-3.5 text-muted-foreground transition-transform',
+            open && 'rotate-180',
+          )}
+        />
       </button>
 
       {open && (
@@ -99,6 +113,7 @@ export function SignOutButton() {
           </div>
 
           <div className="p-1.5">
+            <ImportApplicationsButton presentation="menuitem" />
             <Button
               variant="ghost"
               className="h-9 w-full justify-start gap-2 text-destructive hover:bg-destructive/10 hover:text-destructive"
