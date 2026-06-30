@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { useLiveQuery } from 'dexie-react-hooks'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -15,12 +14,13 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { SignOutButton } from '@/components/auth/sign-out-button'
+import { ImportApplicationsButton } from './import-applications'
 import { AddApplication } from './add-application'
 import { SidebarList } from './sidebar-list'
 import { ListView } from './list-view'
 import { ApplicationDetail } from './application-detail'
+import { useApplications } from '@/hooks/use-applications'
 import {
-  db,
   isArchived,
   STATUS_META,
   STATUS_ORDER,
@@ -33,11 +33,7 @@ type Filter = 'all' | ApplicationStatus | 'archived'
 type ViewMode = 'sidebar' | 'list'
 
 export function TrackerApp() {
-  const all = useLiveQuery(
-    () => db.applications.orderBy('appliedAt').reverse().toArray(),
-    [],
-    undefined,
-  )
+  const { apps: all, error: loadError } = useApplications()
 
   const [view, setView] = useState<ViewMode>('sidebar')
   const [filter, setFilter] = useState<Filter>('all')
@@ -164,6 +160,8 @@ export function TrackerApp() {
 
           <SignOutButton />
 
+          <ImportApplicationsButton />
+
           <Button size="lg" onClick={() => setAddOpen(true)}>
             <Plus className="size-4" />
             <span className="hidden sm:inline">Add</span>
@@ -214,6 +212,11 @@ export function TrackerApp() {
 
       {/* Content */}
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-5">
+        {loadError && (
+          <p className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {loadError}
+          </p>
+        )}
         {loading ? (
           <LoadingState />
         ) : !hasAny ? (
@@ -223,21 +226,45 @@ export function TrackerApp() {
         ) : view === 'list' ? (
           <ListView apps={visible} />
         ) : (
-          <div className="grid min-h-[60vh] overflow-hidden rounded-2xl border border-border bg-sidebar lg:grid-cols-[20rem_1fr]">
+          <div className="grid h-[clamp(34rem,calc(100dvh-9rem),46rem)] overflow-hidden rounded-2xl border border-border bg-sidebar lg:grid-cols-[20rem_1fr]">
             <div
               className={cn(
-                'border-border lg:block lg:border-r',
+                'min-h-0 border-border lg:block lg:border-r',
                 selected ? 'hidden' : 'block',
               )}
             >
-              <SidebarList
-                apps={visible}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
+              <div className="flex h-full min-h-0 flex-col">
+                <div className="flex shrink-0 items-center justify-between border-b border-border bg-sidebar/95 px-4 py-3">
+                  <div>
+                    <h2 className="text-sm font-semibold text-foreground">
+                      Applications
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      {visible.length} in this view
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    {filter === 'all'
+                      ? 'All'
+                      : filter === 'archived'
+                        ? 'Archived'
+                        : STATUS_META[filter].label}
+                  </span>
+                </div>
+                <div className="min-h-0 flex-1 overflow-y-auto">
+                  <SidebarList
+                    apps={visible}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </div>
+              </div>
             </div>
             <div
-              className={cn('bg-card lg:block', selected ? 'block' : 'hidden')}
+              className={cn(
+                'min-h-0 bg-card lg:block',
+                selected ? 'block' : 'hidden',
+              )}
             >
               {selected ? (
                 <>
@@ -305,7 +332,7 @@ function EmptyState({
       </h2>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">
         {firstRun
-          ? 'Paste a job link and Herontrack fills in the role, company, and portal for you. Everything stays private on this device.'
+          ? 'Paste a job link and Herontrack fills in the role, company, and portal for you. Your saved tracker is tied to your account.'
           : 'Try a different tab, clear your search, or add a new application.'}
       </p>
       <Button size="lg" className="mt-5" onClick={onAdd}>

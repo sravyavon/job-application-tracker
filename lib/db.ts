@@ -1,5 +1,18 @@
-import Dexie, { type EntityTable } from 'dexie'
 import type { PortalKey } from './portals'
+import {
+  addApplication,
+  deleteApplication,
+  updateApplication,
+  getApplication,
+} from './applications-store'
+
+export {
+  addApplication,
+  updateApplication,
+  deleteApplication,
+  fetchApplications,
+  importApplications,
+} from './applications-store'
 
 export type ApplicationStatus =
   | 'applied'
@@ -57,16 +70,6 @@ export function daysSince(ts: number, now = Date.now()): number {
     Math.floor((startOfLocalDay(now) - startOfLocalDay(ts)) / DAY),
   )
 }
-
-const db = new Dexie('herontrack') as Dexie & {
-  applications: EntityTable<Application, 'id'>
-}
-
-db.version(1).stores({
-  applications: 'id, status, appliedAt, archived, portalKey',
-})
-
-export { db }
 
 export const STATUS_ORDER: ApplicationStatus[] = [
   'applied',
@@ -149,44 +152,11 @@ export function interviewSummary(app: Application): string | null {
   }
 }
 
-function uid(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
-}
-
-export async function addApplication(
-  data: Omit<
-    Application,
-    'id' | 'createdAt' | 'updatedAt' | 'status' | 'archived'
-  > & { status?: ApplicationStatus },
-): Promise<string> {
-  const now = Date.now()
-  const id = uid()
-  await db.applications.add({
-    id,
-    status: 'applied',
-    archived: false,
-    createdAt: now,
-    updatedAt: now,
-    ...data,
-  })
-  return id
-}
-
-export async function updateApplication(
-  id: string,
-  changes: Partial<Omit<Application, 'id' | 'createdAt'>>,
-): Promise<void> {
-  await db.applications.update(id, { ...changes, updatedAt: Date.now() })
-}
-
 export async function setStatus(
   id: string,
   status: ApplicationStatus,
 ): Promise<void> {
-  const existing = await db.applications.get(id)
+  const existing = await getApplication(id)
   const changes: Partial<Omit<Application, 'id' | 'createdAt'>> = { status }
 
   if (status === 'interview' && existing?.status !== 'interview') {
@@ -200,8 +170,4 @@ export async function setStatus(
   }
 
   await updateApplication(id, changes)
-}
-
-export async function deleteApplication(id: string): Promise<void> {
-  await db.applications.delete(id)
 }

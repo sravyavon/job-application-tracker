@@ -88,51 +88,132 @@ export function ApplicationDetail({
   }
 
   return (
-    <div className="flex h-full flex-col">
-      <div className="flex items-start gap-4 border-b border-border p-6">
-        <CompanyAvatar url={app.url} name={app.company || app.title} size="lg" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
-              {app.portalLabel}
-            </span>
-            {archived && (
-              <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                Archived
-              </span>
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="border-b border-border p-6">
+        <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
+            <CompanyAvatar
+              url={app.url}
+              name={app.company || app.title}
+              size="lg"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">
+                  {app.portalLabel}
+                </span>
+                {archived && (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    Archived
+                  </span>
+                )}
+              </div>
+              {editing ? (
+                <div className="mt-2 space-y-2">
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Role / title"
+                    className="font-serif text-lg font-semibold"
+                  />
+                  <Input
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="Company"
+                  />
+                </div>
+              ) : (
+                <>
+                  <h2 className="mt-2 text-pretty font-serif text-2xl font-semibold leading-tight text-foreground">
+                    {app.title}
+                  </h2>
+                  {app.company && (
+                    <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Building2 className="size-4" />
+                      {app.company}
+                    </p>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex shrink-0 flex-wrap items-center gap-2 xl:justify-end">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() =>
+                void updateApplication(app.id, { archived: !app.archived })
+              }
+            >
+              {app.archived ? (
+                <>
+                  <ArchiveRestore className="size-4" /> Restore
+                </>
+              ) : (
+                <>
+                  <Archive className="size-4" /> Archive
+                </>
+              )}
+            </Button>
+
+            {confirmDelete ? (
+              <>
+                <span className="text-xs text-muted-foreground">
+                  Delete for good?
+                </span>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => setConfirmDelete(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={async () => {
+                    await deleteApplication(app.id)
+                    onDeleted?.()
+                  }}
+                >
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant={editing ? 'default' : 'outline'}
+                  size="lg"
+                  onClick={() => {
+                    if (editing) void handleSave()
+                    else setEditing(true)
+                  }}
+                >
+                  {editing ? (
+                    <>
+                      <Save className="size-4" /> Save
+                    </>
+                  ) : (
+                    <>
+                      <Pencil className="size-4" /> Edit
+                    </>
+                  )}
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="lg"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  <Trash2 className="size-4" /> Delete
+                </Button>
+              </>
             )}
           </div>
-          {editing ? (
-            <div className="mt-2 space-y-2">
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Role / title"
-                className="font-serif text-lg font-semibold"
-              />
-              <Input
-                value={company}
-                onChange={(e) => setCompany(e.target.value)}
-                placeholder="Company"
-              />
-            </div>
-          ) : (
-            <>
-              <h2 className="mt-2 text-pretty font-serif text-2xl font-semibold leading-tight text-foreground">
-                {app.title}
-              </h2>
-              {app.company && (
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
-                  <Building2 className="size-4" />
-                  {app.company}
-                </p>
-              )}
-            </>
-          )}
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="min-h-0 flex-1 overflow-y-auto p-6">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-border bg-background/60 p-3">
             <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
@@ -188,14 +269,14 @@ export function ApplicationDetail({
           <InterviewDetails app={app} />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 max-w-4xl rounded-xl border border-border bg-background/50 p-4">
           <p className="mb-2 text-sm font-medium text-foreground">Notes</p>
           <Textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             readOnly={!editing}
             placeholder="Recruiter name, referral, follow-up reminders…"
-            className="min-h-28"
+            className="min-h-24 bg-card"
           />
         </div>
 
@@ -212,78 +293,6 @@ export function ApplicationDetail({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-border p-4">
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={() =>
-            void updateApplication(app.id, { archived: !app.archived })
-          }
-        >
-          {app.archived ? (
-            <>
-              <ArchiveRestore className="size-4" /> Restore
-            </>
-          ) : (
-            <>
-              <Archive className="size-4" /> Archive
-            </>
-          )}
-        </Button>
-
-        <div className="flex items-center gap-2">
-          {confirmDelete ? (
-            <>
-              <span className="text-xs text-muted-foreground">Delete for good?</span>
-              <Button
-                variant="ghost"
-                size="lg"
-                onClick={() => setConfirmDelete(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="destructive"
-                size="lg"
-                onClick={async () => {
-                  await deleteApplication(app.id)
-                  onDeleted?.()
-                }}
-              >
-                Delete
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant={editing ? 'default' : 'outline'}
-                size="lg"
-                onClick={() => {
-                  if (editing) void handleSave()
-                  else setEditing(true)
-                }}
-              >
-                {editing ? (
-                  <>
-                    <Save className="size-4" /> Save
-                  </>
-                ) : (
-                  <>
-                    <Pencil className="size-4" /> Edit
-                  </>
-                )}
-              </Button>
-              <Button
-                variant="destructive"
-                size="lg"
-                onClick={() => setConfirmDelete(true)}
-              >
-                <Trash2 className="size-4" /> Delete
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
     </div>
   )
 }

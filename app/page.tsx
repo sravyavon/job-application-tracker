@@ -56,8 +56,8 @@ const FEATURES = [
   },
   {
     icon: Lock,
-    title: 'Private by default',
-    body: 'Everything is stored locally in your browser. No accounts, no servers, no tracking.',
+    title: 'Secure account access',
+    body: 'Sign in to keep your tracker connected to your account and available when you come back.',
   },
   {
     icon: Moon,
@@ -90,7 +90,7 @@ export default function HomePage() {
           <div className="ml-auto flex items-center gap-2 sm:ml-6">
             <ThemeToggle />
             <Button render={<Link href="/tracker" />} size="lg">
-              Open tracker
+              Sign in
             </Button>
           </div>
         </nav>
@@ -114,7 +114,7 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button render={<Link href="/tracker" />} size="lg" className="h-11 px-5 text-sm">
-                Start tracking — free
+                Sign in to start
                 <ArrowRight className="size-4" />
               </Button>
               <Button
@@ -127,7 +127,7 @@ export default function HomePage() {
               </Button>
             </div>
             <p className="mt-4 text-xs text-muted-foreground">
-              No sign-up. Your data never leaves your device.
+              Sign in or create an account to keep your tracker synced.
             </p>
           </div>
           <div className="lg:pl-6">
@@ -231,7 +231,7 @@ export default function HomePage() {
               Give your job search a calm place to live
             </h2>
             <p className="max-w-md text-pretty text-sm text-primary-foreground/80">
-              Start in seconds. No account required, and it’s yours to keep.
+              Start in seconds. Sign in to securely save and access your tracker.
             </p>
             <Button
               render={<Link href="/tracker" />}
@@ -239,7 +239,7 @@ export default function HomePage() {
               size="lg"
               className="h-11 px-6 text-sm"
             >
-              Open the tracker
+              Sign in to open tracker
               <ArrowRight className="size-4" />
             </Button>
           </div>
