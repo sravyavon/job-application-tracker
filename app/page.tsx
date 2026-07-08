@@ -11,7 +11,7 @@ import {
   Link2,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ThemeToggle } from '@/components/theme-toggle'
+import { HomeHeader } from '@/components/home-header'
 import { HeroPreview } from '@/components/landing/hero-preview'
 
 const PORTALS = [
@@ -69,32 +69,7 @@ const FEATURES = [
 export default function HomePage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
-        <nav className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
-          <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Feather className="size-4" />
-            </span>
-            <span className="font-serif text-lg font-semibold tracking-tight">
-              Herontrack
-            </span>
-          </Link>
-          <div className="ml-auto hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
-            <a href="#how" className="transition-colors hover:text-foreground">
-              How it works
-            </a>
-            <a href="#features" className="transition-colors hover:text-foreground">
-              Features
-            </a>
-          </div>
-          <div className="ml-auto flex items-center gap-2 sm:ml-6">
-            <ThemeToggle />
-            <Button render={<Link href="/tracker" />} size="lg">
-              Sign in
-            </Button>
-          </div>
-        </nav>
-      </header>
+      <HomeHeader />
 
       <main className="flex-1">
         {/* Hero */}

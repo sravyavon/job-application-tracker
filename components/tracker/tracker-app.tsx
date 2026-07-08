@@ -104,7 +104,7 @@ export function TrackerApp() {
     <div className="flex min-h-dvh flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-3">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-[auto_1fr_auto] items-center gap-3 px-4 py-3">
           <Link
             href="/"
             className="flex shrink-0 items-center gap-2"
@@ -118,55 +118,59 @@ export function TrackerApp() {
             </span>
           </Link>
 
-          <div className="relative ml-auto hidden flex-1 items-center sm:flex sm:max-w-sm lg:ml-12 lg:max-w-md">
-            <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
-            <Input
-              placeholder="Search roles…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="h-9 w-full pl-9"
-            />
+          <div className="flex justify-center px-2">
+            <div className="relative hidden w-full max-w-md items-center sm:flex">
+              <Search className="pointer-events-none absolute left-3 size-4 text-muted-foreground" />
+              <Input
+                placeholder="Search roles…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="h-9 w-full pl-9"
+              />
+            </div>
           </div>
 
-          <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-0.5">
-            <button
-              type="button"
-              onClick={() => setView('sidebar')}
-              aria-pressed={view === 'sidebar'}
-              aria-label="Sidebar view"
-              className={cn(
-                'flex size-8 items-center justify-center rounded-md transition-colors',
-                view === 'sidebar'
-                  ? 'bg-secondary text-secondary-foreground'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              <PanelsTopLeft className="size-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setView('list')}
-              aria-pressed={view === 'list'}
-              aria-label="List view"
-              className={cn(
-                'flex size-8 items-center justify-center rounded-md transition-colors',
-                view === 'list'
-                  ? 'bg-secondary text-secondary-foreground'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              <LayoutList className="size-4" />
-            </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-0.5">
+              <button
+                type="button"
+                onClick={() => setView('sidebar')}
+                aria-pressed={view === 'sidebar'}
+                aria-label="Sidebar view"
+                className={cn(
+                  'flex size-8 items-center justify-center rounded-md transition-colors',
+                  view === 'sidebar'
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                <PanelsTopLeft className="size-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                aria-pressed={view === 'list'}
+                aria-label="List view"
+                className={cn(
+                  'flex size-8 items-center justify-center rounded-md transition-colors',
+                  view === 'list'
+                    ? 'bg-secondary text-secondary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                <LayoutList className="size-4" />
+              </button>
+            </div>
+
+            <ThemeToggle />
+
+            <SignOutButton />
+
+            <Button size="lg" onClick={() => setAddOpen(true)}>
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">Add</span>
+            </Button>
           </div>
-
-          <ThemeToggle />
-
-          <SignOutButton />
-
-          <Button size="lg" onClick={() => setAddOpen(true)}>
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">Add</span>
-          </Button>
         </div>
 
         {/* Filter tabs */}
