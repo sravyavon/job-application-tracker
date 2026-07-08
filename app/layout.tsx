@@ -49,12 +49,21 @@ export const metadata: Metadata = {
     description:
       'Paste a job URL, get the role and company auto-filled, and track every application from Applied to Offer. A calm home for a stressful search.',
     siteName: 'Herontrack',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Herontrack — Track every job application without the stress',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Herontrack — Calm Job Application Tracker',
     description:
       'Paste a job URL, get the role and company auto-filled, and track every application from Applied to Offer.',
+    images: ['/og-image.png'],
   },
   robots: { index: true, follow: true },
   icons: {
