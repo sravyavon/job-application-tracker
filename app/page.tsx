@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { HomeHeader } from '@/components/home-header'
 import { HeroPreview } from '@/components/landing/hero-preview'
+import { createClient } from '@/lib/supabase/server'
 
 const PORTALS = [
   'LinkedIn',
@@ -66,7 +67,10 @@ const FEATURES = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAuthenticated = Boolean(user)
   return (
     <div className="flex min-h-dvh flex-col">
       <HomeHeader />
@@ -89,7 +93,7 @@ export default function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Button render={<Link href="/tracker" />} size="lg" className="h-11 px-5 text-sm">
-                Sign in to start
+                {isAuthenticated ? 'Launch the tracker' : 'Sign in to start'}
                 <ArrowRight className="size-4" />
               </Button>
               <Button
@@ -101,9 +105,11 @@ export default function HomePage() {
                 See how it works
               </Button>
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">
-              Sign in or create an account to keep your tracker synced.
-            </p>
+            {!isAuthenticated && (
+              <p className="mt-4 text-xs text-muted-foreground">
+                Sign in or create an account to keep your tracker synced.
+              </p>
+            )}
           </div>
           <div className="lg:pl-6">
             <HeroPreview />
@@ -206,7 +212,9 @@ export default function HomePage() {
               Give your job search a calm place to live
             </h2>
             <p className="max-w-md text-pretty text-sm text-primary-foreground/80">
-              Start in seconds. Sign in to securely save and access your tracker.
+              {isAuthenticated
+                ? 'Your tracker is ready and waiting.'
+                : 'Start in seconds. Sign in to securely save and access your tracker.'}
             </p>
             <Button
               render={<Link href="/tracker" />}
@@ -214,7 +222,7 @@ export default function HomePage() {
               size="lg"
               className="h-11 px-6 text-sm"
             >
-              Sign in to open tracker
+              {isAuthenticated ? 'Launch the tracker' : 'Sign in to open tracker'}
               <ArrowRight className="size-4" />
             </Button>
           </div>
