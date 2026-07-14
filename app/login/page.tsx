@@ -26,7 +26,7 @@ export default async function LoginPage({
   return (
     <div className="flex min-h-dvh flex-col bg-background">
       <header className="border-b border-border px-4 py-3">
-        <div className="mx-auto flex w-full max-w-md items-center justify-between">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Feather className="size-4" />
