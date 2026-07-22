@@ -45,8 +45,8 @@ export default async function LoginPage({
             Welcome to Herontrack
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sign in or create an account with your email to access your job
-            application tracker.
+            Sign in with Google, a magic link, or your password to access
+            your job application tracker.
           </p>
 
           {authError && (
