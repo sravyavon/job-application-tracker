@@ -25,9 +25,18 @@ export async function updateSession(request: NextRequest) {
     },
   )
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  let user = null
+  try {
+    const result = await Promise.race([
+      supabase.auth.getUser(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('getUser timeout')), 5000),
+      ),
+    ])
+    user = result.data.user
+  } catch {
+    // Timed out or Supabase unreachable — treat as unauthenticated
+  }
 
   return { supabaseResponse, user }
 }
