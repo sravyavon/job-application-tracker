@@ -52,10 +52,39 @@ export interface Application {
 export const DAY = 1000 * 60 * 60 * 24
 export const ARCHIVE_AFTER_DAYS = 90
 
+/** True when the 90-day rule archives this entry, regardless of the manual flag. */
+export function isArchivedByAge(app: Application, now = Date.now()): boolean {
+  return now - app.appliedAt > ARCHIVE_AFTER_DAYS * DAY
+}
+
 /** An application is archived if manually archived OR older than 90 days. */
 export function isArchived(app: Application, now = Date.now()): boolean {
-  if (app.archived) return true
-  return now - app.appliedAt > ARCHIVE_AFTER_DAYS * DAY
+  return app.archived || isArchivedByAge(app, now)
+}
+
+/**
+ * Archive/Restore button handler shared by the list and detail views.
+ * - Not archived: sets the manual flag.
+ * - Archived only by the flag: clears it.
+ * - Archived by age (flag set or not): writes nothing and returns
+ *   'needs-confirm', because clearing the flag alone would leave it archived.
+ *   Call restoreAsAppliedToday() once the user confirms.
+ */
+export async function toggleArchive(
+  app: Application,
+): Promise<'done' | 'needs-confirm'> {
+  if (!isArchived(app)) {
+    await updateApplication(app.id, { archived: true })
+    return 'done'
+  }
+  if (isArchivedByAge(app)) return 'needs-confirm'
+  await updateApplication(app.id, { archived: false })
+  return 'done'
+}
+
+/** Restores an age-archived entry by clearing the flag and resetting appliedAt to now. */
+export async function restoreAsAppliedToday(id: string): Promise<void> {
+  await updateApplication(id, { archived: false, appliedAt: Date.now() })
 }
 
 function startOfLocalDay(ts: number): number {

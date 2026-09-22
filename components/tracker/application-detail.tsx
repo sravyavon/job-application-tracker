@@ -22,6 +22,8 @@ import {
   daysSince,
   deleteApplication,
   isArchived,
+  restoreAsAppliedToday,
+  toggleArchive,
   updateApplication,
   type Application,
 } from '@/lib/db'
@@ -59,6 +61,7 @@ export function ApplicationDetail({
   const [appliedDate, setAppliedDate] = useState(toDateInput(app.appliedAt))
   const [notes, setNotes] = useState(app.notes ?? '')
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [confirmRestore, setConfirmRestore] = useState(false)
 
   useEffect(() => {
     setEditing(false)
@@ -68,10 +71,23 @@ export function ApplicationDetail({
     setAppliedDate(toDateInput(app.appliedAt))
     setNotes(app.notes ?? '')
     setConfirmDelete(false)
+    setConfirmRestore(false)
   }, [app.id, app.title, app.company, app.location, app.appliedAt, app.notes])
 
   const archived = isArchived(app)
   const age = daysSince(app.appliedAt)
+
+  async function handleArchiveToggle() {
+    if ((await toggleArchive(app)) === 'needs-confirm') {
+      setConfirmDelete(false)
+      setConfirmRestore(true)
+    }
+  }
+
+  async function handleConfirmRestore() {
+    await restoreAsAppliedToday(app.id)
+    setConfirmRestore(false)
+  }
 
   async function handleSave() {
     const appliedAt = appliedDate
@@ -139,25 +155,28 @@ export function ApplicationDetail({
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-2 xl:justify-end">
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() =>
-                void updateApplication(app.id, { archived: !app.archived })
-              }
-            >
-              {app.archived ? (
-                <>
+            {confirmRestore ? (
+              <>
+                <span className="max-w-xs text-xs text-muted-foreground">
+                  Applied {age} days ago. Restoring will treat it as applied
+                  today.
+                </span>
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  onClick={() => setConfirmRestore(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="default"
+                  size="lg"
+                  onClick={() => void handleConfirmRestore()}
+                >
                   <ArchiveRestore className="size-4" /> Restore
-                </>
-              ) : (
-                <>
-                  <Archive className="size-4" /> Archive
-                </>
-              )}
-            </Button>
-
-            {confirmDelete ? (
+                </Button>
+              </>
+            ) : confirmDelete ? (
               <>
                 <span className="text-xs text-muted-foreground">
                   Delete for good?
@@ -182,6 +201,21 @@ export function ApplicationDetail({
               </>
             ) : (
               <>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={() => void handleArchiveToggle()}
+                >
+                  {archived ? (
+                    <>
+                      <ArchiveRestore className="size-4" /> Restore
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="size-4" /> Archive
+                    </>
+                  )}
+                </Button>
                 <Button
                   variant={editing ? 'default' : 'outline'}
                   size="lg"
